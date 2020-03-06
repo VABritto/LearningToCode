@@ -5,7 +5,8 @@ public class Conta {
 	private int agencia;
 	private int numero;
 	private double saldo;
-	private double taxa = 0.30;
+	private double taxaSaque = 0.30;
+	private double taxaTransfer = 4.0;
 	
 	private Cliente cliente;
 
@@ -21,11 +22,11 @@ public class Conta {
 	}
 	
 	public void sacar (double saque) {
-		this.saldo -= (saque + taxa);
+		this.saldo -= (saque + taxaSaque);
 	}
 	
 	public void transferir (double valor) {
-		this.saldo -= valor;
+		this.saldo -= (valor + taxaTransfer);
 	}
 	
 	public double getSaldo() {
@@ -61,11 +62,11 @@ public class Conta {
 	}
 
 	public double getTaxa() {
-		return taxa;
+		return taxaSaque;
 	}
 
 	public void setTaxa(double taxa) {
-		this.taxa = taxa;
+		this.taxaSaque = taxa;
 	}
 
 	public void getConta() {
