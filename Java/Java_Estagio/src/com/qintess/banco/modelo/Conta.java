@@ -7,6 +7,7 @@ public class Conta {
 	private double saldo;
 	private double taxaSaque = 0.30;
 	private double taxaTransfer = 4.0;
+	private double taxaLimite = 2.0;
 	
 	private Cliente cliente;
 
@@ -22,7 +23,11 @@ public class Conta {
 	}
 	
 	public void sacar (double saque) {
-		this.saldo -= (saque + taxaSaque);
+		if (saque > 300) {
+			this.saldo -= (saque + taxaSaque + taxaLimite);			
+		} else {
+			this.saldo -= (saque + taxaSaque);
+		}
 	}
 	
 	public void transferir (double valor) {

@@ -178,14 +178,12 @@ public class Caixa {
 				.get();
 
 		System.out.println("Nome: " + conta.getCliente().getNome());
-		System.out.print("Valor a sacar: (limite de R$300) ");
-		double valor = scanner.nextDouble(); scanner.nextLine();
+		System.out.print("Valor a sacar: (limite de R$300, sujeito a taxa) ");
+		double saque = scanner.nextDouble(); scanner.nextLine();
 		
-		if (valor > 300) {
-			System.out.println("Valor inválido, cancelando transação...");
-		} else if (valor <= 300 && valor > 0) {
-			conta.sacar(valor);
-			System.out.println("Valor sacado: R$" + valor);
+		if (saque > 0) {
+			conta.sacar(saque);
+			System.out.println("Valor sacado: R$" + saque);
 		} else {
 			System.out.println("Valor inválido, cancelando transação...");
 		}
