@@ -8,6 +8,8 @@ public class Conta {
 	private double taxaSaque = 0.30;
 	private double taxaTransfer = 4.0;
 	private double taxaLimite = 2.0;
+	private double limite = 300;
+	private double buffer = 0;
 	
 	private Cliente cliente;
 
@@ -20,18 +22,66 @@ public class Conta {
 
 	public void depositar (double deposito) {
 		this.saldo += deposito;
-	}
-	
-	public void sacar (double saque) {
-		if (saque > 300) {
-			this.saldo -= (saque + taxaSaque + taxaLimite);			
-		} else {
-			this.saldo -= (saque + taxaSaque);
+		if (this.saldo >= this.buffer) {
+			this.saldo -= this.buffer;
+			this.buffer = 0;
+		} else if (this.saldo > 0) {
+			this.buffer -= this.saldo;
+			this.saldo = 0;
 		}
 	}
 	
-	public void transferir (double valor) {
-		this.saldo -= (valor + taxaTransfer);
+	public void sacar (double saque) {
+		if ((this.saldo + limite) < saque) {
+			System.out.println("Saldo insuficiente.");
+		} else if (this.saldo < saque) {
+			System.out.println("Valor sacado: R$" + saque);
+			saque -= this.saldo;
+			this.saldo = 0;
+			this.buffer += (taxaLimite + saque);
+		} else if (this.saldo < (saque + taxaSaque) && this.buffer == 0) {
+			this.buffer = taxaSaque;
+			this.saldo -= saque;
+			System.out.println("Valor sacado: R$" + saque);
+		} else if (this.saldo >= (saque + taxaSaque) && this.buffer == 0 ) {
+			this.saldo -= (saque + taxaSaque);
+			System.out.println("Valor sacado: R$" + saque);
+		} else if (this.saldo < (saque + taxaSaque + buffer) && this.buffer != 0) {
+			this.saldo -= (saque + taxaSaque);
+			System.out.println("Valor sacado: R$" + saque);
+		} else {
+			this.saldo -= (saque + taxaSaque + buffer);
+			this.buffer = 0;
+			System.out.println("Valor sacado: R$" + saque);
+		}
+	}
+	
+	public void transferir (Conta transferida, double valor) {
+		if (this == transferida) {
+			System.out.println("Operação inválida.");
+		} else {
+			if (this.saldo < valor) {
+				System.out.println("Saldo insuficiente.");
+			} else if (this.saldo < (valor + taxaTransfer) && this.buffer == 0) {
+				this.buffer = taxaTransfer;
+				this.saldo -= valor;
+				transferida.depositar(valor);
+				System.out.println("Valor transferido: R$" + valor);
+			} else if (this.saldo >= (valor + taxaTransfer) && this.buffer == 0 ) {
+				this.saldo -= (valor + taxaTransfer);
+				transferida.depositar(valor);
+				System.out.println("Valor transferido: R$" + valor);
+			} else if (this.saldo < (valor + taxaTransfer + buffer) && this.buffer != 0) {
+				this.saldo -= (valor + taxaTransfer);
+				transferida.depositar(valor);
+				System.out.println("Valor transferido: R$" + valor);
+			} else {
+				this.saldo -= (valor + taxaTransfer + buffer);
+				this.buffer = 0;
+				transferida.depositar(valor);
+				System.out.println("Valor transferido: R$" + valor);
+			}
+		}
 	}
 	
 	public double getSaldo() {
@@ -66,14 +116,6 @@ public class Conta {
 		this.numero = numero;
 	}
 
-	public double getTaxa() {
-		return taxaSaque;
-	}
-
-	public void setTaxa(double taxa) {
-		this.taxaSaque = taxa;
-	}
-
 	public void getConta() {
 		
 		System.out.println("CONTA " + this.getAgencia() + "-" + this.getNumero() 
@@ -84,6 +126,45 @@ public class Conta {
 		System.out.printf("\nConta: %d-%d \nSaldo Atual: R$%.2f\n", this.getAgencia(), 
 				this.getNumero(), this.getSaldo());
 	}
-	
-	
+
+	public double getBuffer() {
+		return buffer;
+	}
+
+	public void setBuffer(double buffer) {
+		this.buffer = buffer;
+	}
+
+	public double getTaxaSaque() {
+		return taxaSaque;
+	}
+
+	public void setTaxaSaque(double taxaSaque) {
+		this.taxaSaque = taxaSaque;
+	}
+
+	public double getTaxaTransfer() {
+		return taxaTransfer;
+	}
+
+	public void setTaxaTransfer(double taxaTransfer) {
+		this.taxaTransfer = taxaTransfer;
+	}
+
+	public double getTaxaLimite() {
+		return taxaLimite;
+	}
+
+	public void setTaxaLimite(double taxaLimite) {
+		this.taxaLimite = taxaLimite;
+	}
+
+	public double getLimite() {
+		return limite;
+	}
+
+	public void setLimite(double limite) {
+		this.limite = limite;
+	}
+
 }

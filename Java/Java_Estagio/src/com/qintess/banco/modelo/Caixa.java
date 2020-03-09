@@ -19,10 +19,10 @@ public class Caixa {
 	public static void painelDeControle() {
 
 		System.out.print("1- Criar nova conta\n2- Verificar conta \n3- Verificar saldo"
-				+ "\n4- Depositar \n5- Sacar\n6- Transferir para outra conta local\n7- Sair\n\n"
-				+ "Qual ação deseja tomar? (1/2/3/4/5/6/7) ");
-		int decisao = scanner.nextInt();
-		scanner.nextLine();
+				+ "\n4- Depositar \n5- Sacar\n6- Transferir para outra conta local"
+				+ "\n7- Conferir taxas pendentes \n8 - Sair\n\n"
+				+ "Qual ação deseja tomar? (1/2/3/4/5/6/7/8) ");
+		int decisao = scanner.nextInt(); scanner.nextLine();
 		String opcao = "S";
 
 		switch (decisao) {
@@ -86,13 +86,23 @@ public class Caixa {
 
 			painelDeControle();
 			break;
+		} 
+		case 7: {
+			while (!opcao.equalsIgnoreCase("n")) {
+				taxas();
+				System.out.print("Deseja verificar outras taxas pendentes? (S/n): ");
+				opcao = scanner.nextLine();
+			}
+
+			painelDeControle();
+			break;
 		}
 		default:
 			System.out.println("Saindo do programa...");
 		}
 
 	}
-	
+
 	public static void novaConta() {
 
 		System.out.print("Digite o nome do cliente: ");
@@ -148,15 +158,8 @@ public class Caixa {
 	}
 	
 	public static void depositar() {
-		System.out.print("Informe a agencia do cliente: ");
-		int agencia = scanner.nextInt();
-		scanner.nextLine();
-		System.out.print("Informe o número da conta do cliente: ");
-		int numero = scanner.nextInt();
-		scanner.nextLine();
-
-		Conta conta = contas.stream().filter(c -> c.getAgencia() == agencia && c.getNumero() == numero).findFirst()
-				.get();
+		
+		Conta conta = buscarConta("outro");
 
 		System.out.println("Nome: " + conta.getCliente().getNome());
 		System.out.print("Valor a depositar: ");
@@ -167,15 +170,7 @@ public class Caixa {
 	}
 
 	public static void sacar() {
-		System.out.print("Informe a agencia do cliente: ");
-		int agencia = scanner.nextInt();
-		scanner.nextLine();
-		System.out.print("Informe o número da conta do cliente: ");
-		int numero = scanner.nextInt();
-		scanner.nextLine();
-
-		Conta conta = contas.stream().filter(c -> c.getAgencia() == agencia && c.getNumero() == numero).findFirst()
-				.get();
+		Conta conta = buscarConta("outro");
 
 		System.out.println("Nome: " + conta.getCliente().getNome());
 		System.out.print("Valor a sacar: (limite de R$300, sujeito a taxa) ");
@@ -183,43 +178,27 @@ public class Caixa {
 		
 		if (saque > 0) {
 			conta.sacar(saque);
-			System.out.println("Valor sacado: R$" + saque);
 		} else {
 			System.out.println("Valor inválido, cancelando transação...");
 		}
 	}
 	
 	public static void transferir() {
-		Transferencia transferencia = new Transferencia();
 
-		System.out.print("Informe a agencia da conta transferidora: ");
-		int agencia1 = scanner.nextInt();
-		scanner.nextLine();
-		System.out.print("Informe o número da conta transferidora: ");
-		int numero1 = scanner.nextInt();
-		scanner.nextLine();
+		Conta transferidora = buscarConta("transferidora");
 
-		Conta transferidora = contas.stream().filter(c -> c.getAgencia() == agencia1 && c.getNumero() == numero1)
-				.findFirst().get();
-
-		System.out.println("Nome: " + transferidora.getCliente().getNome() + "\nConta: " + agencia1 + "-" + numero1);
+		System.out.println("Nome: " + transferidora.getCliente().getNome() 
+				+ "\nConta: " + transferidora.getAgencia() + "-" + transferidora.getNumero());
 
 		System.out.print("Confirmar conta: (S/n) ");
 		String opcao1 = scanner.nextLine();
 
 		if (opcao1.equalsIgnoreCase("S")) {
 
-			System.out.print("Informe a agencia da conta a transferir: ");
-			int agencia2 = scanner.nextInt();
-			scanner.nextLine();
-			System.out.print("Informe o número da conta a transferir: ");
-			int numero2 = scanner.nextInt();
-			scanner.nextLine();
+			Conta transferida = buscarConta("transferida");
 
-			Conta transferida = contas.stream().filter(c -> c.getAgencia() == agencia2 && c.getNumero() == numero2)
-					.findFirst().get();
-
-			System.out.println("Nome: " + transferida.getCliente().getNome() + "\nConta: " + agencia2 + "-" + numero2);
+			System.out.println("Nome: " + transferida.getCliente().getNome()
+					+ "\nConta: " + transferida.getAgencia() + "-" + transferida.getNumero());
 
 			System.out.print("Confirmar conta: (S/n) ");
 			String opcao2 = scanner.nextLine();
@@ -227,9 +206,7 @@ public class Caixa {
 			if (opcao2.equalsIgnoreCase("S")) {
 				System.out.print("Valor a transferir: ");
 				double valor = scanner.nextDouble(); scanner.nextLine();
-				transferencia.transferir(transferidora, transferida, valor);
-
-				System.out.println("Valor transferido: R$" + valor);
+				transferidora.transferir(transferida, valor);
 			} else {
 				System.out.println("Operação cancelada...");
 			}
@@ -239,31 +216,59 @@ public class Caixa {
 	}
 	
 	public static void verificarConta() {
-		System.out.print("Informe a agencia do cliente: ");
-		int agencia = scanner.nextInt();
-		scanner.nextLine();
-		System.out.print("Informe o número da conta do cliente: ");
-		int numero = scanner.nextInt();
-		scanner.nextLine();
-
-		contas.stream().filter(conta -> conta.getAgencia() == agencia).filter(conta -> conta.getNumero() == numero)
-				.forEach(conta -> conta.getConta());
+		Conta conta = buscarConta("outro");
+		conta.getConta();
 
 	}
 	
 	public static void verificarSaldo() {
-		System.out.print("Informe a agencia do cliente: ");
-		int agencia = scanner.nextInt();
-		scanner.nextLine();
-		System.out.print("Informe o número da conta do cliente: ");
-		int numero = scanner.nextInt();
-		scanner.nextLine();
 
-		Conta conta = contas.stream().filter(c -> c.getAgencia() == agencia && c.getNumero() == numero).findFirst()
-				.get();
+		Conta conta = buscarConta("outro");
 		double saldo = conta.getSaldo();
 		String nome = conta.getCliente().getNome();
-		System.out.printf("Conta: %d-%d\nNome: %s\nSaldo Atual: R$%.2f\n", agencia, numero, nome, saldo);
+		System.out.printf("Conta: %d-%d\nNome: %s\nSaldo Atual: R$%.2f\n", conta.getAgencia(), conta.getNumero(), nome, saldo);
 
+	}
+	
+	public static void taxas() {
+		Conta conta = buscarConta("outro");
+		
+		System.out.printf("Nome: %s\nConta: %d-%d\nTaxas Pendentes: R$%.2f\n", 
+				conta.getCliente().getNome(), conta.getAgencia(), conta.getNumero(),
+				conta.getBuffer());
+	}
+	
+	public static Conta buscarConta(String transferir) {
+		
+		int agencia;
+		int numero;
+		
+		if (transferir.equalsIgnoreCase("transferidora")) {
+			System.out.print("Informe a agencia da conta transferidora: ");
+			agencia = scanner.nextInt();
+			scanner.nextLine();
+			System.out.print("Informe o número da conta transferidora: ");
+			numero = scanner.nextInt();
+			scanner.nextLine();
+		} else if (transferir.equalsIgnoreCase("transferida")) {
+			System.out.print("Informe a agencia da conta a transferir: ");
+			agencia = scanner.nextInt();
+			scanner.nextLine();
+			System.out.print("Informe o número da conta a transferir: ");
+			numero = scanner.nextInt();
+			scanner.nextLine();
+		} else {
+			System.out.print("Informe a agencia da conta: ");
+			agencia = scanner.nextInt();
+			scanner.nextLine();
+			System.out.print("Informe o número da conta: ");
+			numero = scanner.nextInt();
+			scanner.nextLine();
+			
+		}
+
+		Conta conta = contas.stream().filter(c -> c.getAgencia() == agencia && c.getNumero() == numero)
+				.findFirst().get();
+		return conta;
 	}
 }
