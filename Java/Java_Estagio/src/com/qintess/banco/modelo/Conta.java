@@ -8,6 +8,7 @@ public class Conta {
 	private double taxaSaque = 0.30;
 	private double taxaTransfer = 4.0;
 	private double taxaLimite = 2.0;
+	private double chequeEspecial = 300;
 	private double limite = 300;
 	private double buffer = 0;
 	
@@ -25,6 +26,11 @@ public class Conta {
 		if (this.saldo >= this.buffer) {
 			this.saldo -= this.buffer;
 			this.buffer = 0;
+			if (this.saldo > 0 && chequeEspecial < limite) {
+				if ((this.chequeEspecial += this.saldo) > limite) {
+					chequeEspecial = limite;
+				}
+			}
 		} else if (this.saldo > 0) {
 			this.buffer -= this.saldo;
 			this.saldo = 0;
@@ -32,12 +38,13 @@ public class Conta {
 	}
 	
 	public void sacar (double saque) {
-		if ((this.saldo + limite) < saque) {
+		if ((this.saldo + chequeEspecial) < saque) {
 			System.out.println("Saldo insuficiente.");
 		} else if (this.saldo < saque) {
 			System.out.println("Valor sacado: R$" + saque);
 			saque -= this.saldo;
 			this.saldo = 0;
+			chequeEspecial -= saque;
 			this.buffer += (taxaLimite + saque);
 		} else if (this.saldo < (saque + taxaSaque) && this.buffer == 0) {
 			this.buffer = taxaSaque;
@@ -60,8 +67,15 @@ public class Conta {
 		if (this == transferida) {
 			System.out.println("Operação inválida.");
 		} else {
-			if (this.saldo < valor) {
+			if ((this.saldo + chequeEspecial) < valor) {
 				System.out.println("Saldo insuficiente.");
+			} else if (this.saldo < valor) {
+				System.out.println("Valor transferido: R$" + valor);
+				valor -= this.saldo;
+				this.saldo = 0;
+				chequeEspecial -= valor;
+				this.buffer += (taxaLimite + valor);
+				transferida.depositar(valor);
 			} else if (this.saldo < (valor + taxaTransfer) && this.buffer == 0) {
 				this.buffer = taxaTransfer;
 				this.saldo -= valor;
@@ -82,6 +96,18 @@ public class Conta {
 				System.out.println("Valor transferido: R$" + valor);
 			}
 		}
+		
+	}
+
+	public void getConta() {
+		
+		System.out.println("CONTA " + this.getAgencia() + "-" + this.getNumero() 
+		+ "----\nNome: " + cliente.getNome() + "\nCPF: " 
+		+ cliente.getCpf() + "\nIdade: " + cliente.getIdade() + "\nEstado Civil: " 
+		+ cliente.getEstadoCivil() + "\nEndereço: " + cliente.getEndereco());
+		
+		System.out.printf("\nConta: %d-%d \nSaldo Atual: R$%.2f\n", this.getAgencia(), 
+				this.getNumero(), this.getSaldo());
 	}
 	
 	public double getSaldo() {
@@ -116,17 +142,6 @@ public class Conta {
 		this.numero = numero;
 	}
 
-	public void getConta() {
-		
-		System.out.println("CONTA " + this.getAgencia() + "-" + this.getNumero() 
-		+ "----\nNome: " + cliente.getNome() + "\nCPF: " 
-		+ cliente.getCpf() + "\nIdade: " + cliente.getIdade() + "\nEstado Civil: " 
-		+ cliente.getEstadoCivil() + "\nEndereço: " + cliente.getEndereco());
-		
-		System.out.printf("\nConta: %d-%d \nSaldo Atual: R$%.2f\n", this.getAgencia(), 
-				this.getNumero(), this.getSaldo());
-	}
-
 	public double getBuffer() {
 		return buffer;
 	}
@@ -157,6 +172,14 @@ public class Conta {
 
 	public void setTaxaLimite(double taxaLimite) {
 		this.taxaLimite = taxaLimite;
+	}
+
+	public double getChequeEspecial() {
+		return chequeEspecial;
+	}
+
+	public void setChequeEspecial(double limite) {
+		this.chequeEspecial = limite;
 	}
 
 	public double getLimite() {

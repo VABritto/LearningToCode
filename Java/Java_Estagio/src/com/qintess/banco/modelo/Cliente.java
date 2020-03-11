@@ -3,13 +3,13 @@ package com.qintess.banco.modelo;
 public class Cliente {
 
 	private String nome;
-	private long cpf;
+	private String cpf;
 	private String senha;
 	private String estadoCivil;
 	private int idade;
 	private String endereco;
 	
-	public Cliente(String nome, long cpf, String senha, String estadoCivil, int idade, String endereco) {
+	public Cliente(String nome, String cpf, String senha, String estadoCivil, int idade, String endereco) {
 		setNome(nome);
 		setCpf(cpf);
 		setSenha(senha);
@@ -26,11 +26,11 @@ public class Cliente {
 		this.nome = nome;
 	}
 
-	public long getCpf() {
+	public String getCpf() {
 		return cpf;
 	}
 
-	public void setCpf(long cpf) {
+	public void setCpf(String cpf) {
 		this.cpf = cpf;
 	}
 
