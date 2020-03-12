@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-import com.qintess.desafio.modelo.DadosMercado;
 import com.qintess.desafio.modelo.Operacoes;
 import com.qintess.desafio.modelo.Subproduto;
 
@@ -20,7 +19,6 @@ public class ExecutaTeste {
 
 	public static long startTime = System.nanoTime();
 
-	public static List<DadosMercado> listaDadosMercado = new ArrayList<DadosMercado>();
 	public static List<Subproduto> listaSubproduto = new ArrayList<Subproduto>();
 	public static void main(String[] args) throws FileNotFoundException, ParseException, IOException {
 
@@ -55,14 +53,18 @@ public class ExecutaTeste {
 				listaSubproduto.add(subproduto);
 			} else if (!listaSubproduto.contains(subproduto)) {
 				listaSubproduto.add(subproduto);
-			}	
-			
+			} else {
+				for (Subproduto sp: listaSubproduto) {
+					if (sp.getNmSubproduto().equals(subproduto.getNmSubproduto())) {
+						sp.setListaOperacoes(operacoes);
+					}
+				}
+			}
 			
 		}
-		
+
 		for (Subproduto sp: listaSubproduto) {
 			escritor.append(sp.getNmSubproduto() + ";");
-		
 			Scanner scDadosMercado = new Scanner(enderecoDadosMercado);
 			scDadosMercado.nextLine(); // Consumir os cabeçalhos.
 		
@@ -79,7 +81,6 @@ public class ExecutaTeste {
 					}
 					
 				}
-		
 				escritor.append(sp.getResultado() + ";");
 				escritor.append("\n");
 				scDadosMercado.close();
