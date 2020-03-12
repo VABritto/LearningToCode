@@ -2,20 +2,21 @@ package com.qintess.desafio.modelo;
 
 public class DadosMercado {
 
-	private long idPreco;
+	private int idPreco;
 	private long nuPrazoDiasCorridos;
 	private double vlPreco;
 	
-	public DadosMercado(long idPreco, long nuPrazoDiasCorridos, double vlPreco) {
+	public DadosMercado(int idPreco, long nuPrazoDiasCorridos, double vlPreco) {
+		super();
 		this.idPreco = idPreco;
 		this.nuPrazoDiasCorridos = nuPrazoDiasCorridos;
 		this.vlPreco = vlPreco;
 	}
-	
-	public long getIdPreco() {
+
+	public int getIdPreco() {
 		return idPreco;
 	}
-	public void setIdPreco(long idPreco) {
+	public void setIdPreco(int idPreco) {
 		this.idPreco = idPreco;
 	}
 	public long getNuPrazoDiasCorridos() {
