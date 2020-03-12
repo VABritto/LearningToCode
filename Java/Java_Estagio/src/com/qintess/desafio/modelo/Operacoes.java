@@ -17,14 +17,12 @@ public class Operacoes {
 	private String nmCaracteristica;
 	private String cdAtivoObjeto;
 	private double quantidade;
-	private long idPreco;
+	private int idPreco;
 	private long nuPrazoDiasCorridos;
 	double vlPreco;
 	private DadosMercado dadosMercado;
 	
-	public Operacoes(Date dtInicio, Date dtFim, double quantidade, long idPreco) {
-		this.dtInicio = dtInicio;
-		this.dtFim = dtFim;
+	public Operacoes(Date dtInicio, Date dtFim, double quantidade, int idPreco) {
 		this.quantidade = quantidade;
 		this.idPreco = idPreco;
 		this.nuPrazoDiasCorridos = ((dtFim.getTime() - dtInicio.getTime()) / (24 * 60 * 60 * 1000));
@@ -32,7 +30,7 @@ public class Operacoes {
 	
 	public Operacoes(long cdOperacao, Date dtInicio, Date dtFim, String nmEmpresa, String nmMesa, String nmEstrategia,
 			String nmCentralizador, String nmGestor, String nmSubgestor, String nmSubproduto, String nmCaracteristica,
-			String cdAtivoObjeto, double quantidade, long idPreco) {
+			String cdAtivoObjeto, double quantidade, int idPreco) {
 		this.cdOperacao = cdOperacao;
 		this.dtInicio = dtInicio;
 		this.dtFim = dtFim;
@@ -135,7 +133,7 @@ public class Operacoes {
 	public long getIdPreco() {
 		return idPreco;
 	}
-	public void setIdPreco(long idPreco) {
+	public void setIdPreco(int idPreco) {
 		this.idPreco = idPreco;
 	}
 
