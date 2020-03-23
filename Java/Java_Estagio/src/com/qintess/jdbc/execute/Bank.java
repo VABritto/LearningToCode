@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -113,12 +115,18 @@ public class Bank {
 		String choice = scanner.nextLine();
 
 		if (choice.equalsIgnoreCase("S")) {
+			ItemVenda itemVenda = getItemVenda(livro, venda);
+			int qtd = - itemVenda.getQtd();
+			float subtotal = -itemVenda.getSubtotal();
+			alterLivro(livro, qtd);
 			
 			String sql = "DELETE FROM itens_de_vendas WHERE idvenda = ? AND idlivro = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, venda.getIdvenda());
 			ps.setInt(2, livro.getIdlivro());
 			ps.execute();
+			alterVendas(venda, subtotal);
+			
 			System.out.println("Item deletado com sucesso.");
 		} else if (choice.equalsIgnoreCase("n")) {
 			System.out.println("Operação cancelada.");
@@ -131,12 +139,12 @@ public class Bank {
 
 	private static void alter(Venda venda, Livro livro) throws SQLException {
 
+		ItemVenda itemVenda = getItemVenda(livro, venda);
 		System.out.print("1- Livro\n" + "2- Quantidade" + "\nEscolha o que deseja alterar (1/2): ");
 		String opcao = scanner.nextLine();
 
 		switch (opcao) {
 		case "1": {
-			ItemVenda itemVenda = getItemVenda(livro, venda);
 			System.out.print("Digite o livro desejado: ");
 			String novoTitulo = scanner.nextLine();
 			System.out.print("Digite o nome do autor: ");
@@ -144,6 +152,9 @@ public class Bank {
 			Livro novoLivro = getLivro(novoTitulo, novoNomeAutor);
 			int qtd = itemVenda.getQtd();
 			int revertQtd = -itemVenda.getQtd();
+			float initialSubtotal = -itemVenda.getSubtotal(); // Remover subtotal antigo.
+			alterVendas(venda, initialSubtotal);
+			
 			alterLivro(livro, revertQtd);
 			alterLivro(novoLivro, qtd);
 			String sql = "UPDATE itens_de_vendas " + "SET idlivro = ? AND subtotal = ? "
@@ -155,13 +166,14 @@ public class Bank {
 			ps.setInt(3, venda.getIdvenda());
 			ps.setInt(4, livro.getIdlivro());
 			ps.execute();
+			alterVendas(venda, subtotal); // Adicionar novo subtotal.
+			
 
 			break;
 		}
 		case "2": {
 			System.out.print("Digite a quantidade desejada: ");
-			int novaQtd = scanner.nextInt();
-			scanner.nextLine();
+			int novaQtd = scanner.nextInt(); scanner.nextLine();
 			String sqlLivro = "SELECT estoque FROM livros WHERE idlivro = ?";
 			PreparedStatement psLivro = conn.prepareStatement(sqlLivro);
 			psLivro.setInt(1, livro.getIdlivro());
@@ -189,6 +201,9 @@ public class Bank {
 			PreparedStatement psEstoque = conn.prepareStatement(sqlEstoque);
 			psEstoque.setInt(1, novoEstoque);
 			psEstoque.setInt(2, livro.getIdlivro());
+			
+			float initialSubtotal = -itemVenda.getSubtotal(); // Remover subtotal antigo.
+			alterVendas(venda, initialSubtotal);
 
 			String sql = "UPDATE itens_de_vendas " + "SET qtd = ? AND subtotal = ? "
 					+ "WHERE idvenda = ? AND idlivro = ?";
@@ -199,6 +214,7 @@ public class Bank {
 			ps.setInt(3, venda.getIdvenda());
 			ps.setInt(4, livro.getIdlivro());
 			ps.execute();
+			alterVendas(venda, subtotal); // Adicionar novo subtotal.
 
 			break;
 		}
@@ -238,6 +254,7 @@ public class Bank {
 		float subtotal = qtd * livro.getPreco();
 		ps.setFloat(4, subtotal);
 		ps.execute();
+		alterVendas(venda, subtotal);
 
 	}
 
@@ -319,12 +336,13 @@ public class Bank {
 		psVendas.setInt(1, idcliente);
 		ResultSet rVendas = psVendas.executeQuery();
 		int idvenda = 0;
-
+		float total = 0;
 		while (rVendas.next()) {
 			idvenda = rVendas.getInt("idvenda");
+			total = rVendas.getFloat("total");
 		}
 
-		Venda venda = new Venda(idvenda, idcliente);
+		Venda venda = new Venda(idvenda, idcliente, total);
 		return venda;
 
 	}
@@ -348,8 +366,7 @@ public class Bank {
 
 	private static void alterLivro(Livro livro, int qtd) throws SQLException {
 
-		int estoque = 0;
-		estoque = livro.getEstoque() - qtd;
+		int estoque = livro.getEstoque() - qtd;
 
 		if (estoque < 0) {
 			System.out.println("Valor superior ao estoque. Redirecionandon para o painel de controle...");
@@ -363,8 +380,22 @@ public class Bank {
 		}
 	}
 
-	private static void alterVendas(Venda venda, float subtotal) {
-
+	private static void alterVendas(Venda venda, float subtotal) throws SQLException {
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date data = new Date();
+		String dataNova = df.format(data);
+		
+		float total = venda.getTotal() + subtotal;
+		
+		String sql = "UPDATE vendas SET data = ? AND total = ? WHERE idvenda = ? AND idcliente = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setString(1, dataNova);
+		ps.setFloat(2, total);
+		ps.setInt(3, venda.getIdvenda());
+		ps.setInt(4, venda.getIdcliente());
+		ps.execute();
+		
 	}
 
 	private static void findItemVenda(String option) throws SQLException {
