@@ -4,12 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+import com.qintess.jdbc.modelo.Cliente;
 import com.qintess.jdbc.modelo.Autor;
 import com.qintess.jdbc.modelo.ConnectionFactory;
 import com.qintess.jdbc.modelo.CreateBank;
@@ -18,7 +20,7 @@ import com.qintess.jdbc.modelo.ItemVenda;
 import com.qintess.jdbc.modelo.Livro;
 import com.qintess.jdbc.modelo.Venda;
 
-public class Bank {
+public class Execute {
 
 	static Scanner scanner = new Scanner(System.in);
 	static Connection conn = ConnectionFactory.getConnection();
@@ -33,7 +35,7 @@ public class Bank {
 
 		CreateBank createBank = new CreateBank();
 		createBank.createBank();
-		System.out.println("=============BANCO=============");
+		System.out.println("=============LIVRARIA=============");
 		System.out.print(
 				"1- Inserir\n2- Ler\n3- Alterar\n4- Deletar\n5- Relatório\n6- Sair\n" + "Escolha (1/2/3/4/5/6): ");
 
@@ -106,8 +108,60 @@ public class Bank {
 
 	}
 
-	private static void report() {
-
+	private static void report() throws SQLException {
+		
+		String sqlLivrosVendidos = "SELECT l.idlivro, l.titulo, sum(iv.qtd) FROM livros l\r\n" + 
+				"INNER JOIN  itens_de_vendas iv\r\n" + 
+				"ON iv.idlivro = l.idlivro\r\n" + 
+				"GROUP BY l.titulo;";
+		Statement sLV = conn.createStatement();
+		ResultSet rLV = sLV.executeQuery(sqlLivrosVendidos);
+		System.out.println("\nLista de livros mais vendidos --------");
+		int iLV = 0;
+		while (rLV.next()) {
+			iLV++;
+			System.out.println(iLV + "º - " + rLV.getString("l.titulo"));
+			System.out.println("ID do Livro: " + rLV.getInt("l.idlivro"));
+			System.out.println("Total Vendido: " + rLV.getInt("sum(iv.qtd)"));
+			System.out.println("");
+		}
+		
+		String sqlMaiorVenda = "SELECT c.idcliente, c.nome, v.total FROM clientes c\r\n" + 
+				"INNER JOIN vendas v\r\n" + 
+				"ON c.idcliente = v.idcliente \r\n" + 
+				"ORDER BY v.total DESC;";
+		Statement sMV = conn.createStatement();
+		ResultSet rMV = sMV.executeQuery(sqlMaiorVenda);
+		System.out.println("\nLista de Maiores Vendas --------");
+		int iMV = 0;
+		while (rMV.next()) {
+			iMV++;
+			System.out.println(iMV + "º - " + rMV.getString("c.nome"));
+			System.out.println("ID do Cliente: " + rMV.getInt("c.idcliente"));
+			System.out.println("Valor Total: " + rMV.getFloat("v.total"));
+			System.out.println("");
+		}
+		
+		String sqlMaisCompra = "SELECT c.idcliente, c.nome, sum(iv.qtd) AS compras FROM clientes c\r\n" + 
+				"JOIN vendas v\r\n" + 
+				"ON c.idcliente = v.idcliente\r\n" + 
+				"JOIN itens_de_vendas iv \r\n" + 
+				"ON v.idvenda = iv.idvenda\r\n" + 
+				"GROUP BY c.idcliente, c.nome\r\n" + 
+				"ORDER BY total DESC;";
+		Statement sMC = conn.createStatement();
+		ResultSet rMC = sMC.executeQuery(sqlMaisCompra);
+		
+		System.out.println("\nLista de Maiores Compras --------");
+		int iMC = 0;
+		while (rMC.next()) {
+			iMC++;
+			System.out.println(iMC + "º - " + rMC.getString("c.nome"));
+			System.out.println("ID do Cliente: " + rMC.getInt("c.idcliente"));
+			System.out.println("Unidades Compradas: " + rMC.getInt("compras"));
+			System.out.println("");
+		}
+		
 	}
 
 	private static void delete(Venda venda, Livro livro) throws SQLException {
@@ -242,8 +296,7 @@ public class Bank {
 	private static void insert(Venda venda, Livro livro) throws SQLException {
 
 		System.out.print("Insira a quantidade que deseja comprar: ");
-		int qtd = scanner.nextInt();
-		scanner.nextLine();
+		int qtd = scanner.nextInt(); scanner.nextLine();
 		alterLivro(livro, qtd);
 
 		String sql = "INSERT INTO itens_de_vendas (idvenda, idlivro, qtd, " + "subtotal) VALUES (?, ?, ?, ?)";
@@ -316,33 +369,21 @@ public class Bank {
 
 	}
 
-	private static Venda getVenda(String nomeCliente, String telefone) throws SQLException {
+	private static Venda getVenda(int idvenda, Cliente cliente) throws SQLException {
 
-		String sqlCliente = "SELECT * FROM clientes WHERE nome = ? AND telefone = ?";
-		String sqlVendas = "SELECT * FROM vendas WHERE idcliente = ?";
-
-		PreparedStatement psCliente = conn.prepareStatement(sqlCliente);
-		psCliente.setString(1, nomeCliente);
-		psCliente.setString(2, telefone);
+		String sqlVendas = "SELECT * FROM vendas WHERE idcliente = ? AND idvenda = ?";
+		
 		PreparedStatement psVendas = conn.prepareStatement(sqlVendas);
-		ResultSet rCliente = psCliente.executeQuery();
 
-		int idcliente = 0;
-
-		while (rCliente.next()) {
-			idcliente = rCliente.getInt("idcliente");
-		}
-
-		psVendas.setInt(1, idcliente);
+		psVendas.setInt(1, cliente.getIdcliente());
+		psVendas.setInt(2, idvenda);
 		ResultSet rVendas = psVendas.executeQuery();
-		int idvenda = 0;
 		float total = 0;
 		while (rVendas.next()) {
-			idvenda = rVendas.getInt("idvenda");
 			total = rVendas.getFloat("total");
 		}
 
-		Venda venda = new Venda(idvenda, idcliente, total);
+		Venda venda = new Venda(idvenda, cliente.getIdcliente(), total);
 		return venda;
 
 	}
@@ -364,18 +405,39 @@ public class Bank {
 
 	}
 
+	private static Cliente getCliente(String nome, String telefone) throws SQLException {
+		String sql = "SELECT * FROM clientes WHERE nome = ? AND telefone = ?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ps.setString(1, nome);
+		ps.setString(2, telefone);
+		ResultSet r = ps.executeQuery();
+		
+		int idcliente = 0;
+
+		while (r.next()) {
+			idcliente = r.getInt("idcliente");
+		}
+		
+		Cliente cliente = new Cliente(idcliente, nome, telefone);
+		return cliente;
+	}
+	
 	private static void alterLivro(Livro livro, int qtd) throws SQLException {
-
+		
+		System.out.println("ID do Livro: " + livro.getIdlivro());
+		System.out.println("Quantidade: " + qtd);
 		int estoque = livro.getEstoque() - qtd;
-
+		System.out.println("Estoque final: " + estoque);
 		if (estoque < 0) {
 			System.out.println("Valor superior ao estoque. Redirecionandon para o painel de controle...");
+			System.out.println("Passou por aqui.");
 			controlPanel();
 		} else {
-			String sql = "UPDATE livros " + "SET estoque = ? " + "WHERE idlivro = ?";
+			String sql = "UPDATE livros SET estoque = ? WHERE idlivro = ?";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setInt(1, estoque);
 			ps.setInt(2, livro.getIdlivro());
+			ps.execute();
 
 		}
 	}
@@ -388,7 +450,7 @@ public class Bank {
 		
 		float total = venda.getTotal() + subtotal;
 		
-		String sql = "UPDATE vendas SET data = ? AND total = ? WHERE idvenda = ? AND idcliente = ?";
+		String sql = "UPDATE vendas SET data = ?, total = ? WHERE idvenda = ? AND idcliente = ?";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		ps.setString(1, dataNova);
 		ps.setFloat(2, total);
@@ -408,8 +470,25 @@ public class Bank {
 		String nomeCliente = scanner.nextLine();
 		System.out.print("Informe o telefone do cliente: ");
 		String telefone = scanner.nextLine();
-
-		Venda venda = getVenda(nomeCliente, telefone);
+		Cliente cliente = getCliente(nomeCliente, telefone);
+		
+		
+		String sqlClienteVendas = "SELECT c.nome, v.idvenda FROM clientes c\r\n" + 
+				"INNER JOIN vendas v\r\n" + 
+				"ON c.idcliente = v.idcliente\r\n" + 
+				"WHERE c.idcliente = ?";
+		PreparedStatement psCV = conn.prepareStatement(sqlClienteVendas);
+		psCV.setInt(1, cliente.getIdcliente());
+		ResultSet rCV = psCV.executeQuery();
+		System.out.println("Lista de ID de Vendas disponíveis para " + nomeCliente + ": ");
+		while (rCV.next()) {
+			System.out.println("ID: " + rCV.getInt("idvenda"));
+		}
+		
+		System.out.print("Informe o ID da Venda: ");
+		int idvenda = scanner.nextInt(); scanner.nextLine();
+		
+		Venda venda = getVenda(idvenda, cliente);
 		Livro livro = getLivro(titulo, nomeAutor);
 
 		switch (option) {
