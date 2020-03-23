@@ -8,10 +8,11 @@ public class Livro {
 	private int estoque;
 	private int idgenero;
 	
-	public Livro(int idlivro, String titulo, float preco) {
+	public Livro(int idlivro, String titulo, float preco, int estoque) {
 		this.idlivro = idlivro;
 		this.titulo = titulo;
 		this.preco = preco;
+		this.estoque = estoque;
 	}
 	
 	public int getIdlivro() {
