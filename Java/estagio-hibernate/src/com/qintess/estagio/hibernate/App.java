@@ -21,7 +21,6 @@ public class App {
 		
 		Venda venda = new Venda();
 		ItemVenda iv1 = new ItemVenda(prod1, venda, 2);
-		venda.setItem(iv1);
 		
 		daoVenda.salvarOuAlterar(venda);
 		

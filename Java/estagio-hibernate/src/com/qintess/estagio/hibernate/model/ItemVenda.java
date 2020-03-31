@@ -29,6 +29,7 @@ public class ItemVenda implements Entidade {
 		this.venda = venda;
 		this.qtd = qtd;
 		this.subtotal = produto.getPreco() * qtd;
+		venda.setItem(this);
 	}
 
 	public Integer getId() {
