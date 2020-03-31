@@ -54,6 +54,7 @@ public class ItemVenda implements Entidade {
 
 	public void setVenda(Venda venda) {
 		this.venda = venda;
+		venda.setItem(this);
 	}
 
 	public int getQtd() {
