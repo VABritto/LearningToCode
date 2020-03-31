@@ -1,7 +1,7 @@
 package com.qintess.estagio.hibernate;
 
+import com.qintess.estagio.hibernate.dao.DAO;
 import com.qintess.estagio.hibernate.dao.ProdutoDao;
-import com.qintess.estagio.hibernate.model.DAO;
 import com.qintess.estagio.hibernate.model.ItemVenda;
 import com.qintess.estagio.hibernate.model.Produto;
 import com.qintess.estagio.hibernate.model.Venda;

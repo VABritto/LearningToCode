@@ -1,8 +1,10 @@
-package com.qintess.estagio.hibernate.model;
+package com.qintess.estagio.hibernate.dao;
 
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.qintess.estagio.hibernate.config.HibernateConfig;
+import com.qintess.estagio.hibernate.model.Entidade;
 
 public class DAO<T extends Entidade> {
 	
@@ -17,31 +19,38 @@ public class DAO<T extends Entidade> {
 	}
 	
 	public void salvarOuAlterar(T t) {
+		Transaction transaction = null;
+		
 		try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-			session.getTransaction().begin();
+			transaction = session.beginTransaction();
+			
 			if (t.getId() == null) {
 				session.persist(t);
 			} else {
 				session.merge(t);
 			}
-			session.getTransaction().commit();
+			transaction.commit();
 		} catch (Exception e) {
+			if (transaction != null) {
+				transaction.rollback();
+			}
 			e.printStackTrace();
 		}
 	}
 	
 	public void remover(Class<T> t1, Integer id) {
 		T t2 = buscaPorId(t1, id);
+		Transaction transaction = null;
 		try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-			session.getTransaction().begin();
+			transaction = session.beginTransaction();
 			session.remove(t2);
-			session.getTransaction().commit();
+			transaction.commit();
 			
 		} catch (Exception e) {
-			Session session = HibernateConfig.getSessionFactory().openSession();
-			session.getTransaction().rollback();
+			if (transaction != null) {
+				transaction.rollback();
+			}
 			e.printStackTrace();
-			session.close();
 		}
 	}
 	
