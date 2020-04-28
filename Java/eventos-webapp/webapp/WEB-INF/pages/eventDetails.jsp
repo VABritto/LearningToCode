@@ -10,6 +10,7 @@
 <title>Detalhe do Evento | Eventos</title>
 
 <spring:url value="/eventDetails/buyTickets/" var="buyTickets"></spring:url>
+<spring:url value="/" var="home"></spring:url>
 
 <link href='<spring:url value="/resources/css/bootstrap.css" />'
 	rel="stylesheet" />
@@ -50,6 +51,14 @@
 				<br /> <b>Descrição:</b>
 				<p>${event.description}</p>
 				<br />
+				<p>
+					<b>Data Inicial:</b> ${event.startDate}
+				</p> 
+				<br />
+				<p>
+					<b>Data Final:</b> ${event.endDate}
+				</p> 
+				<br />
 				<p class="price">
 					<b>Preço:</b> R$${Double.toString(event.ticketPrice).replace(".",
 					",")}
@@ -62,12 +71,17 @@
 					<div class="form-group">
 						<label>Quantidade de ingressos desejados: </label>
 						<div>
-						<input type="number" name="tickets" min="0" max="${event.totalTickets}"/>
-						</div>
+						<input type="number" name="tickets" min="0" max="4" required/>
+						</div> <br />
 						<input type="submit" class="btn btn-primary" name="buyTickets"
 				value="Comprar" />
 					</div>
 				</form:form>
+				
+				<div id="formFooter"> <br />
+			<a href="${home}"><input type="submit" class="btn btn-warning"
+				value="Voltar" /></a>
+			</div>
 			</div>
 
 		</div>

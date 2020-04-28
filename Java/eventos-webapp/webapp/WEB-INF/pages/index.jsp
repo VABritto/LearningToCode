@@ -58,7 +58,7 @@
 		<div class="col-lg-9 mt-5">
 			<div class="row">
 				<c:forEach var="event" items="${events}">
-					<c:if test="${event.totalTickets > 0}">
+					<c:if test="${event.totalTickets > 0 && !currentDateTime.isAfter(event.endDate)}">
 						<div class="col-lg-4 col-md-6 mb-4">
 							<div class="card">
 								<div class="mb-5">

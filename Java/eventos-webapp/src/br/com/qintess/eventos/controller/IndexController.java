@@ -1,6 +1,7 @@
 package br.com.qintess.eventos.controller;
 
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class IndexController {
 	public String index(Model model) {
 		try {
 			List<Event> events = dao.getAll(Event.class);
+			LocalDateTime currentDateTime = LocalDateTime.now();
+			model.addAttribute("currentDateTime", currentDateTime);
 			model.addAttribute("events", encodeEventImage(events));
 		} catch (UnsupportedEncodingException e) {
 			model.addAttribute("errorMessage", "ERRO GRAVE: " + e.getMessage());
@@ -34,7 +37,6 @@ public class IndexController {
 	@RequestMapping("/menu")
 	public String menu(Model model) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
 		model.addAttribute("loggedInUser", auth);
 		return "menu";
 	}

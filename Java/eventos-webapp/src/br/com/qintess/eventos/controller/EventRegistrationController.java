@@ -1,9 +1,12 @@
 package br.com.qintess.eventos.controller;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.qintess.eventos.dao.Dao;
+import br.com.qintess.eventos.model.Client;
 import br.com.qintess.eventos.model.ConcertHall;
 import br.com.qintess.eventos.model.Event;
 
@@ -27,8 +31,17 @@ public class EventRegistrationController {
 	@RequestMapping("")
 	public String view(Model model) {
 		model.addAttribute("event", new Event());
-		List<Event> events = dao.getAll(Event.class);
-		List<ConcertHall> concertHalls = dao.getAll(ConcertHall.class);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = auth.getName();
+		Client owner = dao.getAll(Client.class).stream().filter(c -> c.getEmail().equals(username))
+				.findFirst().get();
+		List<ConcertHall> concertHalls = owner.getConcertHalls();
+		List<Event> events = new ArrayList<Event>();
+		for (ConcertHall concertHall : concertHalls) {
+			for (Event event : concertHall.getEvents()) {
+				events.add(event);
+			}
+		}
 		model.addAttribute("events", events);
 		model.addAttribute("concertHalls", concertHalls);
 		return "eventRegistration";

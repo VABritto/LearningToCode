@@ -16,7 +16,7 @@ public class ClientLoginService implements UserDetailsService {
 
 	@Autowired
 	private Dao dao;
-
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) {
 		

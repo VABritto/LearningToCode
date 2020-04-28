@@ -52,10 +52,13 @@
 				<form:input path="name" cssClass="form-control" />
 			</div>
 			<div class="form-group">
-				<label>Data</label>
-				<form:input type="date" path="date" cssClass="form-control" />
+				<label>Data Inicial</label>
+				<form:input type="datetime-local" path="startDate" cssClass="form-control" />
 			</div>
-
+			<div class="form-group">
+				<label>Data Final</label>
+				<form:input type="datetime-local" path="endDate" cssClass="form-control" />
+			</div>
 			<div class="form-group">
 				<label>Descrição</label>
 				<form:input path="description" cssClass="form-control" />
@@ -100,7 +103,8 @@
 					<tr>
 						<th scope="col">Evento</th>
 						<th scope="col">Casa de Show</th>
-						<th scope="col">Data</th>
+						<th scope="col">Data Inicial</th>
+						<th scope="col">Data Final</th>
 						<th scope="col">Preço de Tickets (R$)</th>
 						<th scope="col">Total de Tickets</th>
 						<th scope="col" colspan="2">Ações</th>
@@ -111,7 +115,8 @@
 						<tr>
 							<td scope="row">${event.name}</td>
 							<td>${event.concertHall.name}</td>
-							<td>${event.date}</td>
+							<td>${event.startDate}</td>
+							<td>${event.endDate}</td>
 							<td>${event.ticketPrice}</td>
 							<td>${event.totalTickets}</td>
 							<td><a href="${mergeView}${event.id}"

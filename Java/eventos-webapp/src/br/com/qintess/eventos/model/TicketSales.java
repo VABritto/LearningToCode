@@ -1,7 +1,10 @@
 package br.com.qintess.eventos.model;
 
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,31 +13,23 @@ import lombok.Setter;
 @Getter @Setter
 public class TicketSales {
 
-	@EmbeddedId
-	private TicketSalesId id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
 	
+	@ManyToOne
+	private Event event;
+	
+	@ManyToOne
+	private Client client;
+
 	private int quantity;
 	
 	public TicketSales() {}
 
 	public TicketSales(Event event, Client client, int quantity) {
-		this.id = new TicketSalesId(event, client);
-		this.quantity = quantity;
-	}
-
-	public TicketSalesId getId() {
-		return id;
-	}
-
-	public void setId(TicketSalesId id) {
-		this.id = id;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
+		this.event = event;
+		this.client = client;
 		this.quantity = quantity;
 	}
 
@@ -42,7 +37,9 @@ public class TicketSales {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((client == null) ? 0 : client.hashCode());
+		result = prime * result + ((event == null) ? 0 : event.hashCode());
+		result = prime * result + id;
 		result = prime * result + quantity;
 		return result;
 	}
@@ -56,14 +53,26 @@ public class TicketSales {
 		if (getClass() != obj.getClass())
 			return false;
 		TicketSales other = (TicketSales) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (client == null) {
+			if (other.client != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!client.equals(other.client))
+			return false;
+		if (event == null) {
+			if (other.event != null)
+				return false;
+		} else if (!event.equals(other.event))
+			return false;
+		if (id != other.id)
 			return false;
 		if (quantity != other.quantity)
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "TicketSales [id=" + id + ", event=" + event + ", client=" + client + ", quantity=" + quantity + "]";
+	}
+
 }

@@ -3,6 +3,8 @@ package br.com.qintess.eventos.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.qintess.eventos.dao.Dao;
+import br.com.qintess.eventos.model.Client;
 import br.com.qintess.eventos.model.ConcertHall;
 
 @Controller
@@ -25,7 +28,11 @@ public class ConcertHallController {
 	@RequestMapping("")
 	public String view(Model model) {
 		model.addAttribute("concertHall", new ConcertHall());
-		List<ConcertHall> concertHalls = dao.getAll(ConcertHall.class);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String username = auth.getName();
+		Client owner = dao.getAll(Client.class).stream().filter(c -> c.getEmail().equals(username))
+				.findFirst().get();
+		List<ConcertHall> concertHalls = owner.getConcertHalls();
 		model.addAttribute("concertHalls", concertHalls);
 		return "concertHall";
 	}
@@ -35,6 +42,7 @@ public class ConcertHallController {
 			@RequestParam(required = false, value="cancel") String cancel,
 			@RequestParam(required = false, value="image") MultipartFile image,
 			RedirectAttributes redirectAtt) {
+		
 		byte[] bImage;
 		try {
 			if(cancel != null) {
@@ -46,6 +54,12 @@ public class ConcertHallController {
 				concertHall.setConcertHallImage(bImage);
 			}
 			
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			String username = auth.getName();
+			Client owner = dao.getAll(Client.class).stream().filter(c -> c.getEmail().equals(username))
+					.findFirst().get();
+			
+			concertHall.setOwner(owner);
 			if(concertHall.getId() == 0) {
 				dao.save(concertHall);
 				redirectAtt.addFlashAttribute("successMessage", "Casa de Show registrada com sucesso!");

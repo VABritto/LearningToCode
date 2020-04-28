@@ -13,8 +13,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"br.com.qintess.eventos.controller", "br.com.qintess.eventos.dao",
-								"br.com.qintess.eventos.service"})
+@ComponentScan(basePackages = {"br.com.qintess.eventos"})
 public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Bean

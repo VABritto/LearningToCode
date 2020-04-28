@@ -37,17 +37,21 @@ public class LoginController {
 	}
 	
 	@RequestMapping("/signUpView")
-	public String signUpView() {
+	public String signUpView(Model model) {
+		System.out.println("------------------- signUpView entrado");
+		model.addAttribute("client", new Client());
+		System.out.println("------------------- Modelo cliente criado");
 		return "signUp";
 	}
 	
 	@RequestMapping("/doSignUp")
 	public String doSignUp(@ModelAttribute Client client, RedirectAttributes redirectAtt,
 							HttpServletRequest req) {
-	
+		System.out.println("------------------- doSignUp entrado");
 		String originalPassword = client.getPassword();
-		
+		System.out.println("------------------- Senha original: " + originalPassword);
 		try {
+			System.out.println("------------------- Entrei no try");
 			dao.getAll(Client.class)
 				.stream().filter(c -> c.getEmail().equals(client.getEmail())).findFirst().get();
 			
@@ -55,11 +59,12 @@ public class LoginController {
 			return "redirect:/login";
 			
 		} catch (Exception e) {
-			//TODO
+			//TODO 
+			System.out.println("------------------- Passei pelo catch ");
 		}
 		
 		saveNewClient(client);
-		
+		System.out.println("------------------- Saí do saveNewClient ");
 		UsernamePasswordAuthenticationToken authToken = 
 				new UsernamePasswordAuthenticationToken(client.getEmail(), originalPassword);
 		
@@ -71,28 +76,32 @@ public class LoginController {
 	}
 
 	private void saveNewClient(Client client) {
-		
+		System.out.println("------------------- saveNewClient entrado");
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String hashedPassword = passwordEncoder.encode(client.getPassword());
 		client.setPassword(hashedPassword);
-		
+		System.out.println("------------------- Nome do cliente: " + client.getName());
+		System.out.println("------------------- Role do cliente: " + client.getRole());
 		dao.save(client);
-		
+		System.out.println("------------------- Salvei no Dao");
 		List<Role> roles = new ArrayList<Role>();
 		Role role = new Role();
-		
+		System.out.println("------------------- Criei novo Role");
 		role.setName("USER");
 		if(client.getName().equals("admin")) {
 			role.setName("ADMIN");
 		} else if (client.getRole().equals("owner")) {
 			role.setName("OWNER");
+			System.out.println("------------------- Coloquei o role como OWNER");
 		}
 		
 		role.setClient(client);
+		System.out.println("------------------- Coloquei o cliente no role");
 		roles.add(role);
+		System.out.println("------------------- adicionei o role aos meus roles");
 		
 		dao.save(role);
-		
+		System.out.println("------------------- Salvei o role na dao");
 	}
 	
 }

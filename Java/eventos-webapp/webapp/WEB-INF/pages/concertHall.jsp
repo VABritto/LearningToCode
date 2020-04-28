@@ -57,16 +57,6 @@
 			</div>
 			
 			<div class="form-group">
-				<label>E-mail</label>
-				<form:input path="email" cssClass="form-control"/>
-			</div>
-			
-			<div class="form-group">
-				<label>Senha</label>
-				<form:input path="password" cssClass="form-control"/>
-			</div>
-			
-			<div class="form-group">
 				<div class="custom-file">
 					<input type="file" name="image" class="custom-file-input" 
 					value="${concertHallImage}" />
@@ -93,6 +83,7 @@
 			<table class="table table-striped">
 				<thead class="thead-dark">
 					<tr>
+						<th scope="col">Id</th>
 						<th scope="col">Nome</th>
 						<th scope="col">Endereço</th>
 						<th scope="col">Capacidade</th>
@@ -102,7 +93,8 @@
 				<tbody>
 					<c:forEach var="concertHall" items="${concertHalls}">
 						<tr>
-							<td scope="row">${concertHall.name}</td>
+							<td scope="row">${concertHall.id}</td>
+							<td>${concertHall.name}</td>
 							<td>${concertHall.address}</td>
 							<td>${concertHall.capacity}</td>
 							<td><a href="${mergeView}${concertHall.id}" 

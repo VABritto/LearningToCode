@@ -25,20 +25,21 @@
 				${errorMessage}
 				</div>
 			</c:if>		
-			<div class="fadeIn first">
-				<h2>Eventos</h2>			
-			</div>
+			<jsp:include page="${request.contextPath}/menu"></jsp:include>
+		
+				<h2>Eventos - Login</h2>			
 			
 			<form:form action="${process}">
 				<input type="text" name="username" id="login" class="fadeIn second" placeholder="e-mail" />
 				<input type="text" name="password" id="password" class="fadeIn third"  placeholder="senha" />
-				<input type="submit" class="fadeIn fourth" value="Logar" />
-				<p>
+				<input type="submit" class="fadeIn fourth" value="Entrar" />
+				<p> <br />
 					<a href="${signUpView}" class="btn btn-success">Cadastrar-se</a>
 				</p>
 			</form:form>
 				
 			<div id="formFooter">
+				<br />
 				<a class="underlineHover" href="#">Esqueceu sua senha?</a>
 			</div>
 		</div>	
