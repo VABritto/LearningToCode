@@ -1,6 +1,7 @@
 package br.com.qintess.eventos.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +63,16 @@ public class Event {
 	@Column(nullable = false)
 	private int totalTickets;
 
+	public String getStartDateString() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+		String formattedStartDate = startDate.format(dtf);
+		return formattedStartDate;
+	}
 	
+	public String getEndDateString() {
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+		String formattedEndDate = endDate.format(dtf);
+		return formattedEndDate;
+	}
 	
 }

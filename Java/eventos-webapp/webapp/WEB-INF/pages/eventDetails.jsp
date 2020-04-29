@@ -52,11 +52,11 @@
 				<p>${event.description}</p>
 				<br />
 				<p>
-					<b>Data Inicial:</b> ${event.startDate}
+					<b>Data Inicial:</b> ${event.getStartDateString()}
 				</p> 
 				<br />
 				<p>
-					<b>Data Final:</b> ${event.endDate}
+					<b>Data Final:</b> ${event.getEndDateString()}
 				</p> 
 				<br />
 				<p class="price">
